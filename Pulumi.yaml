@@ -1,0 +1,10 @@
+name: platform-team-admin
+description: IaC for platform team foundations (GitHub org and team management)
+runtime:
+  name: python
+  options:
+    toolchain: uv
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: python

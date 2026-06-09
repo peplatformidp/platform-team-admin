@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+
+*.pyc
+venv/
+.venv/
+
+# Bitwarden API Credentials
+.env 
+
+# Github Secrets
+github_secrets.json
+
+# Pulumi Secrets
+pulumi_secrets.json
+
+Pulumi.*.yaml
