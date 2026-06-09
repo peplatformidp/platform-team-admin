@@ -19,7 +19,7 @@ Permissions required for Chapter 1 (`platform-team-admin` Pulumi project):
 | Pulumi action | GitHub API | Fine-grained permission |
 |---------------|------------|-------------------------|
 | Create repositories | `POST /orgs/{org}/repos` | Repository **Administration: Read and write** |
-| Branch protection on `main` | `PUT .../branches/{branch}/protection` | Repository **Administration: Read and write** |
+| Branch protection on all branches | `PUT .../branches/{branch}/protection` | Repository **Administration: Read and write** |
 | Add/update org members | `PUT /orgs/{org}/memberships/{user}` | Organisation **Members: Read and write** |
 
 GitHub does not offer a separate org token — always create a **personal** fine-grained PAT while logged in as `peplatformadmin`, scoped to the `peplatformidp` org.
