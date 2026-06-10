@@ -90,7 +90,12 @@ def _get_item_field(item_name: str, field_name: str, session: str) -> str:
 
 
 def get_github_credentials() -> tuple[str, str]:
-    """Return (owner, token) from the GitHub Secrets item in Bitwarden."""
+    """Return (owner, token) from CI env vars or the GitHub Secrets item in Bitwarden."""
+    owner = os.environ.get("PULUMI_GITHUB_OWNER")
+    token = os.environ.get("PULUMI_GITHUB_TOKEN")
+    if owner and token:
+        return owner, token
+
     session = _get_bw_session()
     try:
         owner = _get_item_field(GITHUB_SECRETS_ITEM, FIELD_OWNER, session)
