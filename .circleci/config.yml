@@ -27,7 +27,8 @@ jobs:
           name: Install dependencies
           command: |
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> "$BASH_ENV"
+            source "${HOME}/.local/bin/env"
+            echo 'source "${HOME}/.local/bin/env"' >> "$BASH_ENV"
             uv sync --frozen
       - pulumi/login
       - pulumi/preview:
@@ -45,7 +46,8 @@ jobs:
           name: Install dependencies
           command: |
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> "$BASH_ENV"
+            source "${HOME}/.local/bin/env"
+            echo 'source "${HOME}/.local/bin/env"' >> "$BASH_ENV"
             uv sync --frozen
       - pulumi/login
       - pulumi/update:
