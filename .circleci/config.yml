@@ -1,0 +1,77 @@
+version: 2.1
+
+# Define Orbs for repeatable logic
+orbs:
+  pulumi: pulumi/pulumi@2.1.0
+
+# Filter definitions for push vs tag
+on-push-main: &on-push-main
+  branches:
+    only: main
+  tags:
+    ignore: /.*/
+
+on-tag-main: &on-tag-main
+  branches:
+    ignore: /.*/
+  tags:
+    only: /^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$/
+
+jobs:
+  pulumi-preview:
+    machine: true
+    resource_class: peplatformidp/local-runner
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> "$BASH_ENV"
+            uv sync --frozen
+      - pulumi/login
+      - pulumi/preview:
+          stack: dev
+
+  approve-github-changes:
+    type: approval
+
+  pulumi-update:
+    machine: true
+    resource_class: peplatformidp/local-runner
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo 'export PATH="${HOME}/.local/bin:${PATH}"' >> "$BASH_ENV"
+            uv sync --frozen
+      - pulumi/login
+      - pulumi/update:
+          stack: dev
+          skip-preview: true
+
+workflows:
+  preview:
+    jobs:
+      - pulumi-preview:
+          context: PLATFORM_ADMIN
+          filters: *on-push-main
+
+  update:
+    jobs:
+      - pulumi-preview:
+          context: PLATFORM_ADMIN
+          filters: *on-tag-main
+
+      - approve-github-changes:
+          requires:
+            - pulumi-preview
+          filters: *on-tag-main
+
+      - pulumi-update:
+          context: PLATFORM_ADMIN
+          requires:
+            - approve-github-changes
+          filters: *on-tag-main
