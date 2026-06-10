@@ -63,6 +63,9 @@ platform-team-admin/
 ├── config/
 │   └── platform_team_values.yaml # Repository and membership configuration values
 ├── pulumi_repo_create.py        # Python automation: GitHub repo and membership provisioning
+├── .git-hooks/                  # Version-controlled Git hook templates (commit-msg)
+├── scripts/
+│   └── install-githooks.sh      # Installs hooks from .git-hooks/ into .git/hooks/
 ├── secrets-setup/               # Bitwarden secrets management for tooling integration
 │   ├── inject_secrets.sh        # Script to sync local JSON secrets into Bitwarden
 │   ├── github_secrets.json_example   # Template: GitHub API credentials & org secrets
@@ -90,14 +93,37 @@ platform-team-admin/
 - [Bitwarden CLI](https://bitwarden.com/help/cli/) — `npm install -g @bitwarden/cli`
 - [jq](https://jqlang.org/) — JSON processing for secret scripts
 
-### 1. Configure local secrets
+### 1. Install Git hooks
+
+Git hooks are scripts that run automatically at certain points in the Git workflow (for example, when you create a commit). This repository ships a **commit-msg** hook that enforces the [Conventional Commits](https://www.conventionalcommits.org/) format — keeping commit history consistent for changelogs, release notes, and CI/CD automation.
+
+**Format:** `type(scope)?: description`
+
+**Allowed types:** `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
+
+**Examples:**
+
+```
+feat: add initial platform-team-admin IDP foundations
+docs(readme): add Git hooks installation instructions
+fix(pulumi): correct organisation membership YAML key
+```
+
+Hook templates live in `.git-hooks/` (committed to the repo). They must be installed locally into `.git/hooks/` — Git does not run hooks from `.git-hooks/` automatically. Run the installer once per clone:
+
+```bash
+chmod +x scripts/install-githooks.sh
+./scripts/install-githooks.sh
+```
+
+### 2. Configure local secrets
 
 ```bash
 cp .env_example .env
 # Edit .env with your Bitwarden API credentials (KEY=value pairs only)
 ```
 
-### 2. Load secrets into Bitwarden
+### 3. Load secrets into Bitwarden
 
 ```bash
 cd secrets-setup
@@ -109,7 +135,7 @@ chmod +x inject_secrets.sh
 
 See [docs/github.md](docs/github.md) for PAT setup and [docs/bitwarden.md](docs/bitwarden.md) for Bitwarden CLI usage.
 
-### 3. Run Pulumi
+### 4. Run Pulumi
 
 ```bash
 pulumi login
