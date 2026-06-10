@@ -85,13 +85,13 @@ for repo_def in data.get("github_repositories", []):
     repositories[repo_name] = repo
 
     # ── Branch protection: enforce signed commits on main ─────────────────────
-    # Every commit to main must be GPG- or SSH-signed by the committing developer.
+    # Every commit (All Branches) must be GPG- or SSH-signed by the committing developer.
     # This satisfies code-commit signing requirements in regulated environments
     # (SOC 2, ISO 27001) and provides a cryptographic audit trail.
     github.BranchProtection(
-        f"{repo_name}-main-branch-protection",
+        f"{repo_name}-branch-protection",
         repository_id=repo.node_id,
-        pattern="main",
+        pattern="*",
         enforce_admins=True,
         require_signed_commits=True,
         required_pull_request_reviews=[
