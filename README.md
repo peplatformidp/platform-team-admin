@@ -34,16 +34,26 @@ This repository is managed by the platform engineering team and uses **Infrastru
 
 ## Documentation
 
-Command references and runbooks live in the [docs/](docs/) folder:
+Guides live in the [docs/](docs/) folder, split into **command references** (tooling cheat sheets) and **runbooks** (end-to-end operational workflows).
 
+### Command references
 
-| Guide                                  | Description                                                 |
-| -------------------------------------- | ----------------------------------------------------------- |
-| [docs/pulumi.md](docs/pulumi.md)       | Pulumi CLI — install, login, preview, deploy                |
+Quick lookups for CLI commands and one-off setup tasks.
+
+| Guide | Description |
+| ----- | ----------- |
+| [docs/pulumi.md](docs/pulumi.md) | Pulumi CLI — install, login, preview, deploy |
 | [docs/bitwarden.md](docs/bitwarden.md) | Bitwarden CLI — version checks and secret injection scripts |
-| [docs/github.md](docs/github.md)       | GitHub PAT — fine-grained token setup for org IaC           |
-| [docs/circleci.md](docs/circleci.md)   | CircleCI CLI — install and local setup                      |
+| [docs/github.md](docs/github.md) | GitHub PAT — fine-grained token setup for org IaC |
+| [docs/circleci.md](docs/circleci.md) | CircleCI CLI — install, config validation, local setup |
 
+### Runbooks
+
+Step-by-step procedures for repeatable platform operations. Each runbook covers prerequisites, commands, verification, and troubleshooting — intended for engineers performing the task for the first time or infrequently.
+
+| Runbook | Description |
+| ------- | ----------- |
+| [docs/add-github-repository.md](docs/add-github-repository.md) | Provision a new organisation repository via YAML, PR, CircleCI preview, and tag release |
 
 ## Repository structure
 
@@ -53,11 +63,12 @@ The repository is structured to facilitate clear separation of concerns across p
 platform-team-admin/
 ├── README.md                    # Overview, usage, and setup instructions (this file)
 ├── images/                      # Diagrams and core concept illustrations
-├── docs/                        # Command references and operational runbooks
-│   ├── pulumi.md                # Pulumi CLI workflows and reference
-│   ├── bitwarden.md             # Bitwarden CLI and secret injection scripts
-│   ├── github.md                # GitHub fine-grained PAT setup and usage
-│   └── circleci.md              # CircleCI CLI and CI/CD local usage
+├── docs/                        # Documentation — command references and runbooks
+│   ├── pulumi.md                # Command reference: Pulumi CLI
+│   ├── bitwarden.md             # Command reference: Bitwarden CLI
+│   ├── github.md                # Command reference: GitHub PAT setup
+│   ├── circleci.md              # Command reference: CircleCI CLI
+│   └── add-github-repository.md # Runbook: provision a new GitHub org repository
 ├── __main__.py                  # Entry point for Pulumi IaC programme (Python)
 ├── Pulumi.yaml                  # Pulumi project definition (name, runtime, backend)
 ├── config/
