@@ -36,11 +36,6 @@ github_repositories:
     description: 'Demo application for testing and validating platform capabilities.'
     visibility: public
 
-  # TEST CI
-  - name: platform-test-ci
-    description: 'dummy repo to test out CircleCI.'
-    visibility: public
-
   # Add new repositories below this line as the platform grows.
   # Example:
   # - name: platform-observability
