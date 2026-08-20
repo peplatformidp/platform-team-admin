@@ -106,26 +106,16 @@ platform-team-admin/
 
 ### 1. Install Git hooks
 
-Git hooks are scripts that run automatically at certain points in the Git workflow (for example, when you create a commit). This repository ships a **commit-msg** hook that enforces the [Conventional Commits](https://www.conventionalcommits.org/) format — keeping commit history consistent for changelogs, release notes, and CI/CD automation.
+Git hooks are scripts that run automatically at certain points in the Git workflow (for example, when you create a commit). This repository ships a **commit-msg** hook that enforces the [Conventional Commits](https://www.conventionalcommits.org/) format.
 
-**Format:** `type(scope)?: description`
-
-**Allowed types:** `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
-
-**Examples:**
-
-```
-feat: add initial platform-team-admin IDP foundations
-docs(readme): add Git hooks installation instructions
-fix(pulumi): correct organisation membership YAML key
-```
-
-Hook templates live in `.git-hooks/` (committed to the repo). They must be installed locally into `.git/hooks/` — Git does not run hooks from `.git-hooks/` automatically. Run the installer once per clone:
+Hook templates live in `.git-hooks/` (committed to the repo). They must be installed locally into `.git/hooks/` — Git does not run hooks from `.git-hooks/` automatically. Run the installer **once per clone**:
 
 ```bash
 chmod +x scripts/install-githooks.sh
 ./scripts/install-githooks.sh
 ```
+
+Then follow **[Git workflow](#git-workflow-with-hooks)** for branch, commit, tag, and release steps.
 
 ### 2. Configure local secrets
 
@@ -155,6 +145,200 @@ pulumi preview
 ```
 
 See [docs/pulumi.md](docs/pulumi.md) for the full command reference.
+
+## Git workflow (with hooks)
+
+This repository is **trunk-based**: short-lived branches, merge to `main`, then a version **tag** to release.
+
+| You do | GitHub | CircleCI |
+|--------|--------|----------|
+| Merge to `main` | Branch is updated | **`preview`** — `pulumi preview` only (no apply) |
+| Push tag `vX.Y.Z` | Tag (and optional Release) | **`update`** — preview → **manual approval** → `pulumi update` |
+
+The **commit-msg** hook only checks the **first line** of each commit. Branch names are a team convention (not enforced by the hook). Commits must be **signed** (`-S`) — branch protection rejects unsigned commits.
+
+### Confirm the hook is installed
+
+```bash
+ls -l .git/hooks/commit-msg
+```
+
+If that file is missing, run `./scripts/install-githooks.sh` from the repository root (Getting started, step 1).
+
+---
+
+### Step 1 — Create a branch
+
+Always start from the latest `main`:
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b feat/add-platform-observability-repo
+```
+
+**Branch names:** kebab-case, with a Conventional Commits prefix.
+
+| Valid | Invalid |
+|-------|---------|
+| `feat/add-platform-observability-repo` | `feature/add-platform-observability` (`feature/` is not a type) |
+| `fix/pulumi-membership-yaml` | `bugfix/membership` (use `fix/`) |
+| `docs/git-workflow` | `update-readme` (missing prefix) |
+| `ci/circleci-preview-filters` | `AddNewRepo` (not kebab-case) |
+
+---
+
+### Step 2 — Commit (hook-enforced message)
+
+Stage the files you changed, then commit with a **signed** Conventional Commits message.
+
+**Format (first line):** `type(scope)?: description`
+
+- `type` — one of: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
+- `scope` — optional; lowercase letters, numbers, and hyphens only, for example `(pulumi)` or `(readme)`
+- `!` — optional; marks a breaking change, for example `feat(api)!:`
+- **Space after the colon** is required
+- Description is lowercase in this repo’s examples; the hook requires a non-empty description
+
+```bash
+git add config/platform_team_values.yaml
+git commit -S -m "feat(pulumi): add platform-observability repository"
+```
+
+A longer body is allowed; only the first line is validated:
+
+```bash
+git commit -S -m "$(cat <<'EOF'
+feat(pulumi): add platform-observability repository
+
+Declare the repo in platform_team_values.yaml so Pulumi can
+provision it in the peplatformidp organisation on the next tag release.
+EOF
+)"
+```
+
+**Messages the hook accepts:**
+
+```
+feat: add initial platform-team-admin IDP foundations
+feat(pulumi): add platform-observability repository
+docs(readme): add Git workflow for branches, tags, and releases
+fix(pulumi): correct organisation membership YAML key
+ci: tighten CircleCI tag filters
+chore: ignore local Pulumi stack config
+refactor(secrets): use exact-name Bitwarden lookup
+```
+
+**Messages the hook rejects** (commit will fail until you amend the message):
+
+```
+Added the new repo                          ← missing type
+Feat(pulumi): add repo                      ← type must be lowercase
+feat:(pulumi) add repo                      ← type and colon in the wrong place
+feat:add repo                               ← missing space after the colon
+feature(pulumi): add repo                   ← "feature" is not an allowed type
+WIP                                         ← not Conventional Commits
+```
+
+If the hook rejects a commit, Git does **not** create the commit. Fix the message and run `git commit` again (do not use `--no-verify`).
+
+Confirm the commit is signed:
+
+```bash
+git log -1 --show-signature
+```
+
+---
+
+### Step 3 — Push and open a pull request
+
+```bash
+git push -u origin feat/add-platform-observability-repo
+```
+
+Then open a PR into `main` (GitHub UI, or GitHub CLI):
+
+```bash
+gh pr create \
+  --base main \
+  --title "feat(pulumi): add platform-observability repository" \
+  --body "$(cat <<'EOF'
+## Summary
+
+Adds `platform-observability` to `platform_team_values.yaml`.
+
+## Test plan
+
+- [ ] CircleCI **preview** succeeds after merge to `main`
+- [ ] After tag: CircleCI **update** applies the change
+EOF
+)"
+```
+
+Merge the PR when it is reviewed. **Preview** runs on `main` after merge — not on the PR branch with the current CircleCI config.
+
+For the full IaC path (YAML → preview → live GitHub repo), see [docs/add-github-repository.md](docs/add-github-repository.md).
+
+---
+
+### Step 4 — Tag (this is what triggers a platform release)
+
+When **preview** on `main` looks correct, create an **annotated** semver tag on `main` and push it. CircleCI only starts the **`update`** workflow for tags that match `v<major>.<minor>.<patch>` (optional pre-release suffix).
+
+```bash
+git checkout main
+git pull origin main
+
+# See the latest tag so you bump the right number
+git tag --list 'v*' --sort=-v:refname | head
+
+git tag -a v0.3.0 -m "Release: add platform-observability repository"
+git push origin v0.3.0
+```
+
+| Tag | Valid for CircleCI? |
+|-----|---------------------|
+| `v0.3.0` | Yes |
+| `v1.0.0-rc.1` | Yes |
+| `v0.3` | No — needs `major.minor.patch` |
+| `0.3.0` | No — must start with `v` |
+| `release-0.3.0` | No — must start with `v` |
+
+If signing is already configured (same setup as `git commit -S`), prefer a **signed** tag:
+
+```bash
+git tag -s v0.3.0 -m "Release: add platform-observability repository"
+git push origin v0.3.0
+```
+
+**Do not retag or force-push a tag that has already been released.** Cut the next version (`v0.3.1`, `v0.4.0`) instead.
+
+---
+
+### Step 5 — GitHub Release and CircleCI approval
+
+The tag is enough for CircleCI. A GitHub Release attaches human-readable notes to the same tag.
+
+```bash
+gh release create v0.3.0 \
+  --verify-tag \
+  --title "v0.3.0" \
+  --notes "$(cat <<'EOF'
+## What's changed
+
+- Add `platform-observability` repository to platform-team-admin IaC
+EOF
+)"
+```
+
+Then complete the **platform** release in CircleCI:
+
+1. Open [CircleCI pipelines](https://app.circleci.com/pipelines/github/peplatformidp/platform-team-admin) for tag `v0.3.0`.
+2. Wait for **`pulumi-preview`** on the **`update`** workflow to succeed.
+3. Click **Approve** on **`approve-github-changes`**.
+4. Wait for **`pulumi-update`** to succeed — that is the apply.
+
+Until you approve, nothing is applied in Pulumi.
 
 ## Projects
 

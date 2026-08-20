@@ -59,12 +59,12 @@ GitHub does not offer a separate org token — always create a **personal** fine
 
 Update the `GitHub Secrets` item via [`github_secrets.json`](../secrets-setup/github_secrets.json) and run [`inject_secrets.sh`](../secrets-setup/inject_secrets.sh):
 
-| Field | Value |
-|-------|-------|
-| `pulumi-github-owner` | `peplatformidp` |
-| `pulumi-github-token` | `github_pat_...` |
+| Field | Bitwarden `type` | Value |
+|-------|------------------|-------|
+| `pulumi-github-owner` | `0` (Text) | `peplatformidp` |
+| `pulumi-github-token` | `1` (Hidden) | `github_pat_...` |
 
-See [docs/bitwarden.md](bitwarden.md) for Bitwarden CLI usage.
+Owner is a non-secret organisation name, so it is stored as Text. The PAT is a secret, so it is Hidden (masked in the vault UI). See [Custom field types](bitwarden.md#custom-field-types) in the Bitwarden reference.
 
 ## Verify
 

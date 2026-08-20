@@ -36,6 +36,16 @@ github_repositories:
     description: 'Demo application for testing and validating platform capabilities.'
     visibility: public
 
+
+
+  # TEMP TEST REPO
+  - name: temp-test-repo
+    description: 'TEMP TEST REPO'
+    visibility: public
+
+
+
+
   # Add new repositories below this line as the platform grows.
   # Example:
   # - name: platform-observability
