@@ -1,4 +1,10 @@
-"""Fetch secrets from Bitwarden via the bw CLI."""
+"""Fetch secrets from Bitwarden via the bw CLI.
+
+Lookups match item name exactly. `bw get item` and `bw list items --search`
+are fuzzy and also match notes and custom fields, so a query such as
+"Pulumi Secrets" can hit "GitHub Secrets" when the latter's notes mention
+Pulumi. That matches secrets-setup/inject_secrets.sh.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +12,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
+from typing import Any
 
 ENV_FILE = Path(__file__).parent / ".env"
 GITHUB_SECRETS_ITEM = "GitHub Secrets"
@@ -74,10 +81,35 @@ def _get_bw_session() -> str:
     return session
 
 
-def _get_item_field(item_name: str, field_name: str, session: str) -> str:
-    item = json.loads(_run_bw(["get", "item", item_name], session=session))
+def _get_item_by_exact_name(item_name: str, session: str) -> dict[str, Any]:
+    """Return the vault item whose name equals item_name.
 
-    for field in item.get("fields", []):
+    Raises if none or more than one item has that exact name so callers never
+    read an ambiguous or notes-matched cipher.
+    """
+    raw = _run_bw(["list", "items"], session=session) or "[]"
+    items = json.loads(raw)
+    matches = [item for item in items if item.get("name") == item_name]
+
+    if not matches:
+        raise KeyError(
+            f"Bitwarden item '{item_name}' not found. "
+            "Run secrets-setup/inject_secrets.sh to sync secrets-setup/*.json."
+        )
+
+    if len(matches) > 1:
+        ids = ", ".join(str(item.get("id", "?")) for item in matches)
+        raise RuntimeError(
+            f"Found {len(matches)} Bitwarden items named '{item_name}' "
+            f"(ids: {ids}). Delete the duplicates in the vault, then retry."
+        )
+
+    return matches[0]
+
+
+def _field_value(item: dict[str, Any], field_name: str) -> str:
+    item_name = str(item.get("name", ""))
+    for field in item.get("fields") or []:
         if field.get("name") == field_name:
             value = field.get("value")
             if value:
@@ -85,7 +117,7 @@ def _get_item_field(item_name: str, field_name: str, session: str) -> str:
 
     raise KeyError(
         f"Field '{field_name}' not found in Bitwarden item '{item_name}'. "
-        f"Run secrets-setup/inject_secrets.sh to sync github_secrets.json."
+        "Run secrets-setup/inject_secrets.sh to sync github_secrets.json."
     )
 
 
@@ -96,11 +128,14 @@ def get_github_credentials() -> tuple[str, str]:
     if owner and token:
         return owner, token
 
+    had_session = bool(os.environ.get("BW_SESSION"))
     session = _get_bw_session()
     try:
-        owner = _get_item_field(GITHUB_SECRETS_ITEM, FIELD_OWNER, session)
-        token = _get_item_field(GITHUB_SECRETS_ITEM, FIELD_TOKEN, session)
+        _run_bw(["sync"], session=session)
+        item = _get_item_by_exact_name(GITHUB_SECRETS_ITEM, session)
+        owner = _field_value(item, FIELD_OWNER)
+        token = _field_value(item, FIELD_TOKEN)
         return owner, token
     finally:
-        if not os.environ.get("BW_SESSION"):
+        if not had_session:
             subprocess.run(["bw", "lock"], capture_output=True, check=False)

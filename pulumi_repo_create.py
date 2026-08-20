@@ -51,7 +51,7 @@ with open(CONFIG_FILE) as f:
     data = yaml.safe_load(f)
 
 # ── GitHub provider ───────────────────────────────────────────────────────────
-# Credentials are fetched from Bitwarden (GitHub Secrets secure note).
+# Credentials are fetched from Bitwarden (Login item "GitHub Secrets").
 github_owner, github_token = get_github_credentials()
 
 github_provider = github.Provider(
