@@ -45,7 +45,7 @@ Complete once per machine / team member:
 
 | Requirement | Notes |
 |-------------|-------|
-| Git hooks | `./scripts/install-githooks.sh` — enforces [Conventional Commits](https://www.conventionalcommits.org/) |
+| Git hooks | `./scripts/install-githooks.sh` — see [git.md](git.md) for branch names and copy-paste commit templates |
 | SSH commit signing | Commits must be signed (branch protection on all branches) |
 | Local secrets (optional) | `.env` + Bitwarden for local `pulumi preview` — see [Getting started](../README.md#getting-started) |
 | CircleCI | Project connected; `PLATFORM_ADMIN` context; local runner **Available** — see [circleci.md](circleci.md) |
@@ -85,7 +85,7 @@ You should see a plan to **create** the new `github:Repository` resource. No cha
 
 ## Step 2 — Create a feature branch
 
-Always branch from the latest `main`:
+Follow [git.md](git.md) (branch names and copy-paste commit templates). For this change:
 
 ```bash
 git checkout main
@@ -93,27 +93,11 @@ git pull origin main
 git checkout -b feat/add-platform-observability-repo
 ```
 
-**Branch naming:** Branch names must start with an approved prefix (`feat/`, `fix/`, `docs/`, `ci/`, `chore/`, etc.) and use kebab-case for clarity.
-
-**Valid examples:**
-- `feat/add-platform-observability-repo`
-- `fix/pulumi-platform-demo-apps`
-- `docs/add-platform-observability-docs`
-- `chore/pulumi-platform-core`
-- `ci/add-platform-demo-apps-repo`
-
-**Invalid examples (would be rejected):**
-- `feature/add-platform-observability`   ← uses `feature/` instead of `feat/`
-- `addPlatformObservabilityRepo`         ← not kebab-case and missing prefix
-- `bugfix/pulumi-platform-demo-apps`     ← uses `bugfix/` instead of `fix/`
-- `update-platform-observability-repo`   ← missing required prefix
-- `main` or `master`                     ← reserved; not for feature branches
-
 ---
 
 ## Step 3 — Commit and push
 
-Stage only the configuration change (and any related docs):
+Stage only the configuration change (and any related docs). First line must pass the `commit-msg` hook — copy a template from [git.md](git.md):
 
 ```bash
 git add config/platform_team_values.yaml
@@ -124,8 +108,7 @@ git push -u origin feat/add-platform-observability-repo
 | Rule | Detail |
 |------|--------|
 | **Signed commits** | Use `-S` (or rely on `commit.gpgsign=true`) |
-| **Commit message** | Conventional format: `type(scope): description` |
-| **Allowed types** | `feat`, `fix`, `docs`, `ci`, `chore`, etc. |
+| **Commit message** | See [git.md](git.md) — `type(scope): description` |
 
 Verify the commit is signed:
 
@@ -296,7 +279,7 @@ git push origin v0.2.0
 
 | Symptom | Likely cause | Action |
 |---------|--------------|--------|
-| Commit rejected | Conventional commit hook | Fix message format; run `./scripts/install-githooks.sh` |
+| Commit rejected | Conventional commit hook | Fix the first line using [git.md](git.md); run `./scripts/install-githooks.sh` |
 | Push rejected | Unsigned commit | Use `git commit -S` |
 | PR cannot merge | Missing review | Obtain approving review per branch protection |
 | No CircleCI pipeline on PR | Expected | Preview runs on **merge to main** only |
@@ -313,6 +296,7 @@ git push origin v0.2.0
 | Guide | Purpose |
 |-------|---------|
 | [README.md](../README.md) | Project overview and local setup |
+| [git.md](git.md) | Branches, Conventional Commits, copy-paste templates |
 | [pulumi.md](pulumi.md) | Pulumi CLI reference |
 | [github.md](github.md) | GitHub PAT permissions |
 | [circleci.md](circleci.md) | CircleCI CLI and pipeline overview |
