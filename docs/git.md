@@ -4,7 +4,7 @@ Daily workflow for this repository: short-lived branches, **signed** Conventiona
 
 The [`commit-msg`](../.git-hooks/commit-msg) hook only checks the **first line** of each commit. Branch names are a team convention (not enforced by the hook). Branch protection rejects unsigned commits.
 
-Tagging and CircleCI release will be documented here later. Until then, see [add-github-repository.md](add-github-repository.md) for tag and update-workflow steps.
+CircleCI triggers and workflows (preview on `main`, update on version tag) are in [circleci.md](circleci.md). To cut a tag and approve the release, see [add-github-repository.md](add-github-repository.md).
 
 ## 1. Install the hook (once per clone)
 

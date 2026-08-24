@@ -46,7 +46,7 @@ Quick lookups for CLI commands and one-off setup tasks.
 | [docs/bitwarden.md](docs/bitwarden.md) | Bitwarden CLI — version checks and secret injection scripts |
 | [docs/github.md](docs/github.md) | GitHub PAT — fine-grained token setup for org IaC |
 | [docs/git.md](docs/git.md) | Git — branches, Conventional Commits, and copy-paste commit templates |
-| [docs/circleci.md](docs/circleci.md) | CircleCI CLI — install, config validation, local setup |
+| [docs/circleci.md](docs/circleci.md) | CircleCI — pipeline (`preview` vs tag `update`), local runner, CLI |
 
 ### Runbooks
 
@@ -69,7 +69,7 @@ platform-team-admin/
 │   ├── bitwarden.md             # Command reference: Bitwarden CLI
 │   ├── github.md                # Command reference: GitHub PAT setup
 │   ├── git.md                   # Command reference: branches and Conventional Commits
-│   ├── circleci.md              # Command reference: CircleCI CLI
+│   ├── circleci.md              # Command reference: CircleCI pipeline and CLI
 │   └── add-github-repository.md # Runbook: provision a new GitHub org repository
 ├── __main__.py                  # Entry point for Pulumi IaC programme (Python)
 ├── Pulumi.yaml                  # Pulumi project definition (name, runtime, backend)
