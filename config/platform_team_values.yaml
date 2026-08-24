@@ -38,10 +38,10 @@ github_repositories:
 
 
 
-  # # TEMP TEST REPO
-  # - name: temp-test-repo
-  #   description: 'TEMP TEST REPO'
-  #   visibility: public
+  # TEMP TEST REPO
+  - name: temp-test-repo
+    description: 'TEMP TEST REPO'
+    visibility: public
 
 
 
