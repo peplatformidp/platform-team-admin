@@ -81,4 +81,4 @@ Both execute jobs: checkout → install `uv` → `uv sync --frozen` → `pulumi/
 
 After merge, open [CircleCI pipelines](https://app.circleci.com/pipelines/github/peplatformidp/platform-team-admin) for `main` and confirm workflow **preview** / job **pulumi-preview**.
 
-Cutting a tag and approving **update** is in [add-github-repository.md](add-github-repository.md) (steps 6–7).
+Cutting a tag and approving **update** is in [git.md — Release automation](git.md#5-release-automation-push-vs-tag).
