@@ -1,10 +1,10 @@
-# Git — branches and commits
+# Git — branches, commits, and release
 
 Daily workflow for this repository: short-lived branches, **signed** Conventional Commits, pull request into `main`.
 
 The [`commit-msg`](../.git-hooks/commit-msg) hook only checks the **first line** of each commit. Branch names are a team convention (not enforced by the hook). Branch protection rejects unsigned commits.
 
-CircleCI triggers and workflows (preview on `main`, update on version tag) are in [circleci.md](circleci.md). To cut a tag and approve the release, see [add-github-repository.md](add-github-repository.md).
+CircleCI triggers and workflows are in [circleci.md](circleci.md). Push vs tag (copy-paste) is in [Release automation](#5-release-automation-push-vs-tag) below. For a new organisation repository, declare it in YAML first: [add-github-repository.md](add-github-repository.md).
 
 ## 1. Install the hook (once per clone)
 
@@ -122,6 +122,86 @@ EOF
 )"
 ```
 
-Merge when reviewed. CircleCI **preview** runs on `main` after merge (not on the PR branch with the current config).
+Merge when reviewed. CircleCI **preview** runs on `main` after merge (not on the PR branch with the current config). See [Release automation](#5-release-automation-push-vs-tag).
 
-For provisioning a new organisation repository, continue in [add-github-repository.md](add-github-repository.md).
+## 5. Release automation (push vs tag)
+
+A **push** of commits to `main` only **validates**. A **tag** on that commit **releases** (after you Approve in CircleCI). Pipeline details: [circleci.md](circleci.md).
+
+| Git event | CircleCI workflow | Pulumi |
+|-----------|-------------------|--------|
+| Merge / push to `main` | **preview** | `pulumi preview` — no apply |
+| Tag `vX.Y.Z` on that commit | **update** | Preview → **Approve** → `pulumi update` |
+| Push to a feature branch or PR | **None** | Filters are `main` / tags only |
+
+Do not retag or force-push a tag that has already been released. Cut the next version instead (`v0.3.1`, `v0.4.0`).
+
+### Push — validate (copy this)
+
+After the PR is merged, `main` already has the commit. Pull and confirm **preview** in CircleCI:
+
+```bash
+git checkout main
+git pull origin main
+
+# Optional: confirm you are on the merged commit
+git log -1 --oneline
+```
+
+Open [CircleCI pipelines](https://app.circleci.com/pipelines/github/peplatformidp/platform-team-admin) for branch **`main`**. Workflow **preview** / job **pulumi-preview** should succeed. Nothing is applied yet.
+
+If preview fails, fix on a new branch ([section 2](#2-create-a-branch)) and merge again. Do not tag until preview on `main` is green.
+
+### Tag — release (copy this)
+
+Tags must match `v<major>.<minor>.<patch>` (optional pre-release suffix). This is what starts workflow **update**.
+
+```bash
+git checkout main
+git pull origin main
+
+# See the latest tag so you bump the right number
+git tag --list 'v*' --sort=-v:refname | head
+
+git tag -a v0.3.0 -m "Release: add platform-observability repository"
+git push origin v0.3.0
+```
+
+If signing is already configured (same as `git commit -S`), prefer a signed tag:
+
+```bash
+git tag -s v0.3.0 -m "Release: add platform-observability repository"
+git push origin v0.3.0
+```
+
+Optional GitHub Release notes on the same tag:
+
+```bash
+gh release create v0.3.0 \
+  --verify-tag \
+  --title "v0.3.0" \
+  --notes "$(cat <<'EOF'
+## What's changed
+
+- Add `platform-observability` repository to platform-team-admin IaC
+EOF
+)"
+```
+
+Then in CircleCI, open the pipeline for tag **`v0.3.0`**:
+
+1. Wait for **`pulumi-preview`** on workflow **update**.
+2. Click **Approve** on **`approve-github-changes`**.
+3. Wait for **`pulumi-update`** — that is the apply.
+
+Until you approve, nothing is applied.
+
+| Tag | Triggers **update**? |
+|-----|----------------------|
+| `v0.3.0` | Yes |
+| `v1.0.0-rc.1` | Yes |
+| `v0.3` | No — needs `major.minor.patch` |
+| `0.3.0` | No — must start with `v` |
+| `release-0.3.0` | No — must start with `v` |
+
+For provisioning a new organisation repository (YAML fields, verify on GitHub), see [add-github-repository.md](add-github-repository.md).

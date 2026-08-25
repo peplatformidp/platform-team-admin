@@ -45,7 +45,7 @@ Quick lookups for CLI commands and one-off setup tasks.
 | [docs/pulumi.md](docs/pulumi.md) | Pulumi CLI — install, login, preview, deploy |
 | [docs/bitwarden.md](docs/bitwarden.md) | Bitwarden CLI — version checks and secret injection scripts |
 | [docs/github.md](docs/github.md) | GitHub PAT — fine-grained token setup for org IaC |
-| [docs/git.md](docs/git.md) | Git — branches, Conventional Commits, and copy-paste commit templates |
+| [docs/git.md](docs/git.md) | Git — branches, Conventional Commits, push vs tag release |
 | [docs/circleci.md](docs/circleci.md) | CircleCI — pipeline (`preview` vs tag `update`), local runner, CLI |
 
 ### Runbooks
@@ -54,7 +54,7 @@ Step-by-step procedures for repeatable platform operations. Each runbook covers 
 
 | Runbook | Description |
 | ------- | ----------- |
-| [docs/add-github-repository.md](docs/add-github-repository.md) | Provision a new organisation repository via YAML, PR, CircleCI preview, and tag release |
+| [docs/add-github-repository.md](docs/add-github-repository.md) | Declare a new organisation repository in YAML; Pulumi creates it on tag release |
 
 ## Repository structure
 
@@ -68,9 +68,9 @@ platform-team-admin/
 │   ├── pulumi.md                # Command reference: Pulumi CLI
 │   ├── bitwarden.md             # Command reference: Bitwarden CLI
 │   ├── github.md                # Command reference: GitHub PAT setup
-│   ├── git.md                   # Command reference: branches and Conventional Commits
+│   ├── git.md                   # Command reference: branches, commits, push vs tag
 │   ├── circleci.md              # Command reference: CircleCI pipeline and CLI
-│   └── add-github-repository.md # Runbook: provision a new GitHub org repository
+│   └── add-github-repository.md # Runbook: declare a new GitHub org repository in YAML
 ├── __main__.py                  # Entry point for Pulumi IaC programme (Python)
 ├── Pulumi.yaml                  # Pulumi project definition (name, runtime, backend)
 ├── config/
@@ -130,7 +130,7 @@ chmod +x scripts/install-githooks.sh
 ./scripts/install-githooks.sh
 ```
 
-Then follow [docs/git.md](docs/git.md) for branch names and copy-paste commit templates.
+Then follow [docs/git.md](docs/git.md) for branches, commits, and push vs tag release.
 
 ### 2. Configure local secrets
 
