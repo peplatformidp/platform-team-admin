@@ -43,7 +43,10 @@ github_repositories:
     description: 'TEMP TEST REPO'
     visibility: public
 
-
+  - name: temp-test-repo-2
+    description: 'TEMP TEST REPO 2'
+    visibility: public
+    
 
 
   # Add new repositories below this line as the platform grows.
