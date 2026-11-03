@@ -14,7 +14,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-ENV_FILE = Path(__file__).parent / ".env"
+# Repository root .env (Bitwarden API credentials), not pulumi-repo/
+ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 GITHUB_SECRETS_ITEM = "GitHub Secrets"
 FIELD_OWNER = "pulumi-github-owner"
 FIELD_TOKEN = "pulumi-github-token"

@@ -10,11 +10,11 @@
 | Bitwarden item | `GitHub Secrets` |
 | Owner field | `pulumi-github-owner` → `peplatformidp` |
 | Token field | `pulumi-github-token` → fine-grained PAT |
-| Used by | [`pulumi_repo_create.py`](../pulumi_repo_create.py) |
+| Used by | [`pulumi-repo/__main__.py`](../pulumi-repo/__main__.py) |
 
 ## Permissions
 
-Permissions required for Chapter 1 (`platform-team-admin` Pulumi project):
+Permissions required for Chapter 1 (`platform-repo-automation` Pulumi project):
 
 | Pulumi action | GitHub API | Fine-grained permission |
 |---------------|------------|-------------------------|

@@ -10,20 +10,32 @@
 | `pulumi preview`  | Dry-run changes |
 | `pulumi up`       | Apply changes |
 
+## Working directory
+
+The Pulumi project lives in [`pulumi-repo/`](../pulumi-repo/). Run `pulumi` commands from that directory (after `uv sync` at the repository root):
+
+```bash
+cd pulumi-repo
+pulumi stack select dev
+pulumi preview
+```
+
 ## Pulumi program
 
-[`pulumi_repo_create.py`](../pulumi_repo_create.py) manages GitHub organisation resources from `config/platform_team_values.yaml`. It loads credentials via [`bitwarden_secrets.py`](../bitwarden_secrets.py), then creates each repo (delete-protected), applies branch protection (signed commits, one review, all branches), and adds organisation members. [`__main__.py`](../__main__.py) only imports this file so `pulumi preview` / `up` run it.
+[`pulumi-repo/__main__.py`](../pulumi-repo/__main__.py) manages GitHub organisation resources from [`pulumi-repo/config/platform_team_values.yaml`](../pulumi-repo/config/platform_team_values.yaml). It loads credentials via [`pulumi-repo/bitwarden_secrets.py`](../pulumi-repo/bitwarden_secrets.py), then creates each repo (delete-protected), applies branch protection (signed commits, one review, all branches), and adds organisation members.
+
+Pulumi Cloud project name: **`platform-repo-automation`** (stack **`dev`**).
 
 ## Tear down and rebuild
 Repositories are delete-protected. 
 
 Unprotect before destroy:
 
-- `pulumi state unprotect 'urn:pulumi:dev::platform-team-admin::github:index/repository:Repository::platform-team-admin'`
+- `pulumi state unprotect 'urn:pulumi:dev::platform-repo-automation::github:index/repository:Repository::platform-team-admin'`
 
-- `pulumi state unprotect 'urn:pulumi:dev::platform-team-admin::github:index/repository:Repository::platform-core'`
+- `pulumi state unprotect 'urn:pulumi:dev::platform-repo-automation::github:index/repository:Repository::platform-core'`
 
-- `pulumi state unprotect 'urn:pulumi:dev::platform-team-admin::github:index/repository:Repository::platform-demo-apps'`
+- `pulumi state unprotect 'urn:pulumi:dev::platform-repo-automation::github:index/repository:Repository::platform-demo-apps'`
 
 - `pulumi destroy`
 

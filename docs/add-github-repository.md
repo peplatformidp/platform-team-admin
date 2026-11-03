@@ -17,7 +17,7 @@ Complete once per machine / team member:
 
 ## Declare the repository
 
-Edit [`config/platform_team_values.yaml`](../config/platform_team_values.yaml) and add an entry under `github_repositories`:
+Edit [`pulumi-repo/config/platform_team_values.yaml`](../pulumi-repo/config/platform_team_values.yaml) and add an entry under `github_repositories`:
 
 ```yaml
   - name: platform-observability
@@ -35,6 +35,7 @@ Edit [`config/platform_team_values.yaml`](../config/platform_team_values.yaml) a
 
 ```bash
 uv sync --frozen
+cd pulumi-repo
 pulumi login
 pulumi stack select dev
 pulumi preview

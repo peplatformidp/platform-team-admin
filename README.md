@@ -71,12 +71,13 @@ platform-team-admin/
 │   ├── git.md                   # Command reference: branches, commits, push vs tag
 │   ├── circleci.md              # Command reference: CircleCI pipeline and CLI
 │   └── add-github-repository.md # Runbook: declare a new GitHub org repository in YAML
-├── __main__.py                  # Entry point for Pulumi IaC programme (Python)
-├── Pulumi.yaml                  # Pulumi project definition (name, runtime, backend)
-├── config/
-│   └── platform_team_values.yaml # Repository and membership configuration values
-├── bitwarden_secrets.py         # GitHub credentials from CI env or Bitwarden
-├── pulumi_repo_create.py        # Python automation: GitHub repo and membership provisioning
+├── pulumi-repo/                 # Pulumi project: GitHub repo and membership IaC
+│   ├── Pulumi.yaml              # Project name: platform-repo-automation
+│   ├── __main__.py              # Pulumi programme entry point
+│   ├── bitwarden_secrets.py     # GitHub credentials from CI env or Bitwarden
+│   └── config/
+│       └── platform_team_values.yaml
+├── pyproject.toml               # Python deps (uv); sync from repository root
 ├── .git-hooks/                  # Version-controlled Git hook templates (commit-msg)
 ├── scripts/
 │   └── install-githooks.sh      # Installs hooks from .git-hooks/ into .git/hooks/
@@ -93,12 +94,12 @@ platform-team-admin/
 - All automation scripts assume configuration via environment files or Bitwarden secrets vault items.
 - See each `docs/*.md` for detailed, workflow-specific instructions.
 - All secrets templates are examples only—**never commit real credentials**.
-- Central IaC logic lives in `__main__.py` and related `.py` helpers.
+- IaC logic lives under `pulumi-repo/` (run Pulumi CLI from that directory).
 
 ## Key Python modules
 
-- [`bitwarden_secrets.py`](bitwarden_secrets.py) — supplies GitHub credentials to Pulumi. `get_github_credentials()` returns `(owner, token)`. CI uses `PULUMI_GITHUB_OWNER` / `PULUMI_GITHUB_TOKEN`; locally it unlocks Bitwarden, syncs, finds **GitHub Secrets** by exact name, and reads `pulumi-github-owner` and `pulumi-github-token`.
-- [`pulumi_repo_create.py`](pulumi_repo_create.py) — Pulumi program that manages GitHub organisation resources from `config/platform_team_values.yaml`. Loads credentials via `bitwarden_secrets.py`, then creates each repo (delete-protected), applies branch protection (signed commits, one review, all branches), and adds organisation members. [`__main__.py`](__main__.py) only imports this file so `pulumi preview` / `up` run it.
+- [`pulumi-repo/bitwarden_secrets.py`](pulumi-repo/bitwarden_secrets.py) — supplies GitHub credentials to Pulumi. `get_github_credentials()` returns `(owner, token)`. CI uses `PULUMI_GITHUB_OWNER` / `PULUMI_GITHUB_TOKEN`; locally it unlocks Bitwarden, syncs, finds **GitHub Secrets** by exact name, and reads `pulumi-github-owner` and `pulumi-github-token`.
+- [`pulumi-repo/__main__.py`](pulumi-repo/__main__.py) — Pulumi programme that manages GitHub organisation resources from `pulumi-repo/config/platform_team_values.yaml`. Loads credentials via `bitwarden_secrets.py`, then creates each repo (delete-protected), applies branch protection (signed commits, one review, all branches), and adds organisation members.
 
 ## Git hooks
 
@@ -154,6 +155,8 @@ See [docs/github.md](docs/github.md) for PAT setup and [docs/bitwarden.md](docs/
 ### 4. Run Pulumi
 
 ```bash
+uv sync --frozen
+cd pulumi-repo
 pulumi login
 pulumi stack select dev
 pulumi preview
@@ -163,13 +166,24 @@ See [docs/pulumi.md](docs/pulumi.md) for the full command reference.
 
 ## Projects
 
-### `platform-team-admin`
+### `platform-repo-automation`
 
-The first Pulumi project in this IDP. It will manage platform-team foundations — starting with GitHub organisation resources and expanding to shared services over time.
+The first Pulumi project in this IDP (under [`pulumi-repo/`](pulumi-repo/)). It manages platform-team foundations — starting with GitHub organisation resources and expanding to shared services over time.
 
-- **Stack:** `dev` (local config in `Pulumi.dev.yaml`, gitignored)
-- **Runtime:** Python via uv
+- **Pulumi Cloud project:** `platform-repo-automation`
+- **Stack:** `dev` (local config in `pulumi-repo/Pulumi.dev.yaml`, gitignored)
+- **Runtime:** Python via uv (`uv sync` at repository root)
 - **Secrets:** GitHub and Pulumi credentials stored in Bitwarden, injected via `secrets-setup/`
+
+State was migrated from the former Pulumi project name `platform-team-admin`. After preview and CI succeed, remove the legacy stack from Pulumi Cloud:
+
+```bash
+cd .pulumi-migrate-export   # gitignored snapshot of origin/main layout
+pulumi stack select dev
+pulumi stack rm dev --force
+```
+
+Or delete **platform-team-admin / dev** in the [Pulumi console](https://app.pulumi.com).
 
 ## Security
 

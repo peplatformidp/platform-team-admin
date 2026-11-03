@@ -57,13 +57,13 @@ Tag pattern: `/^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$/`
 
 ## Jobs
 
-Both execute jobs: checkout → install `uv` → `uv sync --frozen` → `pulumi/login` → Pulumi on stack **`dev`**.
+Both execute jobs: checkout → install `uv` → `uv sync --frozen` at repo root → `pulumi/login` → `cd pulumi-repo` → Pulumi on stack **`dev`**.
 
 | Job | Type | Action |
 |-----|------|--------|
-| `pulumi-preview` | Machine | `pulumi/preview` — dry-run |
+| `pulumi-preview` | Machine | `pulumi preview` in `pulumi-repo/` — dry-run |
 | `approve-github-changes` | `type: approval` | Human gate in the CircleCI UI. Nothing is applied until **Approve**. |
-| `pulumi-update` | Machine | `pulumi/update` with `skip-preview: true` — preview already ran in the same **update** workflow |
+| `pulumi-update` | Machine | `pulumi up --skip-preview` in `pulumi-repo/` — preview already ran in the same **update** workflow |
 
 ## Workflows
 

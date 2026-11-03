@@ -14,7 +14,7 @@
 
 ## Python helper
 
-[`bitwarden_secrets.py`](../bitwarden_secrets.py) supplies GitHub credentials to Pulumi. `get_github_credentials()` returns `(owner, token)`. CI uses `PULUMI_GITHUB_OWNER` / `PULUMI_GITHUB_TOKEN`; locally it unlocks Bitwarden, syncs, finds **GitHub Secrets** by exact name, and reads `pulumi-github-owner` and `pulumi-github-token`.
+[`pulumi-repo/bitwarden_secrets.py`](../pulumi-repo/bitwarden_secrets.py) supplies GitHub credentials to Pulumi. `get_github_credentials()` returns `(owner, token)`. CI uses `PULUMI_GITHUB_OWNER` / `PULUMI_GITHUB_TOKEN`; locally it unlocks Bitwarden, syncs, finds **GitHub Secrets** by exact name, and reads `pulumi-github-owner` and `pulumi-github-token`.
 
 ## Custom field types
 

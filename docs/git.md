@@ -113,7 +113,7 @@ gh pr create \
   --body "$(cat <<'EOF'
 ## Summary
 
-Adds `platform-observability` to `platform_team_values.yaml`.
+Adds `platform-observability` to `pulumi-repo/config/platform_team_values.yaml`.
 
 ## Test plan
 
