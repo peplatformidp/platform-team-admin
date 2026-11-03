@@ -1,5 +1,5 @@
 """
-pulumi_repo_create.py — GitHub Repository and Team Automation
+__main__.py — GitHub Repository and Team Automation
 =============================================================
 
 Creates and manages:

@@ -1,0 +1,13 @@
+name: platform-repo-automation
+description: >
+  IaC for platform team repositories (GitHub repo creation and automation)
+  Creates GitHub repositories and manages organization membership from
+  config/platform_team_values.yaml.
+runtime:
+  name: python
+  options:
+    toolchain: uv
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: python

@@ -31,8 +31,11 @@ jobs:
             echo 'source "${HOME}/.local/bin/env"' >> "$BASH_ENV"
             uv sync --frozen
       - pulumi/login
-      - pulumi/preview:
-          stack: dev
+      - run:
+          name: Pulumi preview
+          command: |
+            cd pulumi-repo
+            pulumi preview --stack dev
 
   approve-github-changes:
     type: approval
@@ -50,9 +53,11 @@ jobs:
             echo 'source "${HOME}/.local/bin/env"' >> "$BASH_ENV"
             uv sync --frozen
       - pulumi/login
-      - pulumi/update:
-          stack: dev
-          skip-preview: true
+      - run:
+          name: Pulumi update
+          command: |
+            cd pulumi-repo
+            pulumi up --yes --stack dev --skip-preview
 
 workflows:
   preview:

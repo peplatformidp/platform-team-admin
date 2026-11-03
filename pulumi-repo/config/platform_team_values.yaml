@@ -5,11 +5,11 @@
 # Pulumi program manages: GitHub repositories and organisation membership.
 #
 # Usage:
-#   Edit this file to add repositories or team members, then run:
+#   Edit this file to add repositories or team members, then from pulumi-repo/:
+#     pulumi preview
 #     pulumi up
-#   in the project root to apply changes.
 #
-# Referenced by: pulumi_repo_create.py / __main__.py
+# Referenced by: pulumi-repo/__main__.py
 # =============================================================================
 
 # ── GitHub Repositories ────────────────────────────────────────────────────────
@@ -39,13 +39,9 @@ github_repositories:
 
 
   # TEMP TEST REPO
-  - name: temp-test-repo
-    description: 'TEMP TEST REPO'
-    visibility: public
-
-  - name: temp-test-repo-2
-    description: 'TEMP TEST REPO 2'
-    visibility: public
+  # - name: temp-test-repo
+  #   description: 'TEMP TEST REPO'
+  #   visibility: public
     
 
 
